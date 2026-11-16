@@ -58,10 +58,10 @@ export default function DashboardPage() {
             </div>
             <span className="font-semibold">Silent Operator</span>
           </Link>
-          <div className="flex gap-4 text-sm">
-            <Link href="/marketplace" className="text-slate-400 hover:text-white">
-              Marketplace
-            </Link>
+          <div className="flex gap-4 text-sm items-center">
+            <Link href="/marketplace" className="text-slate-400 hover:text-white">Marketplace</Link>
+            <Link href="/earn" className="text-slate-400 hover:text-white">Earn</Link>
+            <Link href="/pricing" className="text-slate-400 hover:text-white">Pricing</Link>
             <span className="text-cyan-400">Dashboard</span>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function DashboardPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Agent Console</h1>
           <p className="text-slate-400 text-sm">
-            Live agentic workspace. Try: “Write a follow-up email for an overdue invoice of $2,400”
+            Live agentic workspace. Try: “Write a follow-up email for an overdue invoice of $2,400” or “How can I earn with x402?”
           </p>
         </div>
 
