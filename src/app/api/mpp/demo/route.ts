@@ -21,16 +21,15 @@ export async function POST(req: NextRequest) {
     const depositUsd = Number(body.depositUsd ?? 0.05);
     const payer = (body.payer as string) || "demo-agent";
 
-    // 1. Open
-    const channel = await openSession({
+    const channel = openSession({
       payer,
       depositUsd,
       unitPrice: MPP_CONFIG.defaultUnitPrice,
       unitType: "request",
     });
 
-    // 2. Skill units (invoice-nudge = 1 unit)
-    const units = skill === "daily-brief" ? 5 : skill === "proposal-outline" ? 3 : skill === "lead-score" ? 2 : 1;
+    const units =
+      skill === "daily-brief" ? 5 : skill === "proposal-outline" ? 3 : skill === "lead-score" ? 2 : 1;
     const chargeUsd = units * channel.unitPrice;
     const voucher = createClientVoucher(
       channel.channelId,
@@ -39,20 +38,28 @@ export async function POST(req: NextRequest) {
       units
     );
 
-    // 3. Charge
-    const charge = await chargeUnits(channel.channelId, units, voucher);
+    const charge = chargeUnits(channel.channelId, units, voucher);
     if (!charge.ok) {
-      return NextResponse.json({ error: charge.error, needVoucher: charge.needVoucher }, { status: 402 });
+      return NextResponse.json(
+        { error: charge.error, needVoucher: charge.needVoucher },
+        { status: 402 }
+      );
     }
 
-    // 4. Skill result (inline, same as /api/mpp/skill)
     const results: Record<string, object> = {
       "invoice-nudge": {
         subject: "Quick note on invoice #[ID]",
         body: "Hi [Name], just a friendly reminder that invoice #[ID] for $[AMOUNT] was due on [DATE]. Happy to resend or answer any questions. Thanks!",
       },
       "proposal-outline": {
-        sections: ["Executive Summary", "Problem & Opportunity", "Proposed Solution", "Timeline & Milestones", "Investment & ROI", "Next Steps"],
+        sections: [
+          "Executive Summary",
+          "Problem & Opportunity",
+          "Proposed Solution",
+          "Timeline & Milestones",
+          "Investment & ROI",
+          "Next Steps",
+        ],
       },
       "daily-brief": {
         blocks: ["Priorities", "Blockers", "Metrics", "Decisions needed", "Tomorrow"],
@@ -63,8 +70,7 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // 5. Close
-    const closed = await closeSession(channel.channelId);
+    const closed = closeSession(channel.channelId);
     if (!closed.ok) {
       return NextResponse.json({ error: closed.error, partial: charge }, { status: 500 });
     }
